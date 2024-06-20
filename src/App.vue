@@ -1,19 +1,24 @@
 <script setup lang="ts">
+import CameraSelect from './components/CameraSelect.vue';
 import HelloWorld from './components/HelloWorld.vue'
+
+let cameraId:MediaDeviceInfo | null = null;
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
-
-  <main>
-    aaaaaaaaaaaaaa
-  </main>
+  <div>
+    <CameraSelect v-model="cameraId" />
+    <button id="projectorButton">プロジェクター画面を開く</button>
+    <!-- <div v-for="(frame, index) in frames">
+      <frame-controller :frame="frame" :index="index"></frame-controller>
+    </div> -->
+  </div>
+  <div id="preview">
+    <video id="videoElement" autoplay style="display:none;"></video>
+    <canvas id="canvas1" width="800" height="600"></canvas>
+    <div id="yellowFrame" class="frame"></div>
+    <div id="greenFrame" class="frame green-frame"></div>
+  </div>
 </template>
 
 <style scoped>
