@@ -6,7 +6,8 @@
 	],
 	"extensions": {
 		"recommendations": [
-			"github.copilot"
+			"github.copilot",
+			"vue.volar"
 		]
 	}
 }
