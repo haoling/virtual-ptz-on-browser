@@ -9,28 +9,3 @@ body {
   margin: 0;
 }
 
-#preview {
-  position: relative;
-  width: 800px;
-  height: 600px;
-  border: 1px solid #333;
-}
-
-#videoElement {
-  width: 100%;
-  height: 100%;
-}
-
-.frame {
-  border: 2px solid yellow;
-  position: absolute;
-  display: none;
-}
-
-.green-frame {
-  border-color: green;
-}
-
-#projectorButton {
-  margin-top: 10px;
-}
