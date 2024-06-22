@@ -1,4 +1,6 @@
 import { reactive } from "vue"
+import { useCookies } from "vue3-cookies";
+const { cookies } = useCookies();
 
 interface FrameMembers {
   isSystem: boolean;
@@ -8,6 +10,8 @@ interface FrameMembers {
   right: number;
   bottom: number;
 }
+
+type SaveMembers = Omit<FrameMembers, "isSystem">
 
 // isSystemとnameはUpdate不可
 export type FrameUpdatableProps = Partial<Omit<FrameMembers, "isSystem" | "name">>
@@ -41,6 +45,7 @@ export class Frame implements FrameMembers {
 
   public rename(name: string) {
     this.name = name
+    Frames.save()
   }
 
   public update({ left, top, right, bottom }: FrameUpdatableProps) {
@@ -48,6 +53,16 @@ export class Frame implements FrameMembers {
     top !== undefined && (this.top = top)
     right !== undefined && (this.right = right)
     bottom !== undefined && (this.bottom = bottom)
+  }
+
+  public toJSON(): SaveMembers {
+    return {
+      name: this.name,
+      left: this.left,
+      top: this.top,
+      right: this.right,
+      bottom: this.bottom
+    }
   }
 
   public toStyle() {
@@ -69,6 +84,7 @@ export class Frame implements FrameMembers {
 
   public commit() {
     this.backup = undefined
+    Frames.save()
   }
 
   public rollback() {
@@ -83,10 +99,12 @@ export class Frame implements FrameMembers {
 }
 
 type Props = {
-  frames: Frame[],
-  modifingFrame?: Frame,
-  getFrame: (name: string) => Frame | undefined,
+  frames: Frame[]
+  modifingFrame?: Frame
+  getFrame: (name: string) => Frame | undefined
   addFrame: (args: Omit<FrameMembers, "isSystem">) => void
+  tryLoad: () => void
+  save: () => void
 }
 
 export const Frames = reactive<Props>({
@@ -97,5 +115,15 @@ export const Frames = reactive<Props>({
   addFrame({ name, left, top, right, bottom }) {
     if (this.frames.some(frame => frame.name === name)) return
     this.frames.push(new Frame({ isSystem: false, name, left, top, right, bottom }))
+    this.save()
+  },
+  tryLoad() {
+    const frames = cookies.get("frames")
+    if (frames) {
+      this.frames = this.frames.concat(JSON.parse(frames).map((frame: SaveMembers) => new Frame({isSystem: false, ...frame})))
+    }
+  },
+  save() {
+    cookies.set("frames", JSON.stringify(this.frames.filter(frame => ! frame.isSystem).map(frame => frame.toJSON())))
   }
 })

@@ -7,8 +7,13 @@ import { Frames } from './states/Frames';
 import FrameList from './components/FrameList.vue';
 import { PreviewResolution } from './states/PreviewResolution';
 import CameraStream from './components/CameraStream.vue';
+import { onMounted } from 'vue';
 
 const DEBUG = false;
+
+onMounted(() => {
+  Frames.tryLoad();
+});
 </script>
 
 <template>

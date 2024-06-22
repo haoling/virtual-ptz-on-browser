@@ -105,7 +105,7 @@ const onResizeFrame = (payload: {frame: Frame, corner: ResizeCorner, dx: number,
     bottom -= dy;
   }
 
-  console.log('frame', left, top, right, bottom);
+  // console.log('frame', left, top, right, bottom);
 
   if (left < 0 || 1 - left - right <= 0.05) return;
   if (top < 0 || 1 - top - bottom <= 0.05) return;
