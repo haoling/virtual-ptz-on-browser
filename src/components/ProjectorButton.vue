@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Camera } from '@/states/Camera';
 import { VideoElement } from '@/states/VideoElement';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
@@ -15,7 +16,7 @@ const onClick = () => {
   if (! projectorWindow.value || ! VideoElement.element) {
     return;
   }
-  projectorWindow.value.document.write('<title>プロジェクター画面</title>');
+  projectorWindow.value.document.write(`<title>Projection [${Camera.device?.label}]</title>`);
   canvas.value = document.createElement('canvas');
   canvas.value.style.aspectRatio = (VideoElement.element.videoWidth / VideoElement.element.videoHeight).toString();
   context.value = canvas.value.getContext('2d');
@@ -57,10 +58,12 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('beforeunload', onBeforeUnmount);
 });
+
+watch(() => Camera.device, onBeforeUnmount);
 </script>
 
 <template>
-  <button class="projectorButton" @click="onClick">プロジェクター画面を開く</button>
+  <button class="projectorButton" @click="onClick">Open projection window</button>
 </template>
 
 <style scoped>
