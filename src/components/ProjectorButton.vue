@@ -63,7 +63,7 @@ watch(() => Camera.device, onBeforeUnmount);
 </script>
 
 <template>
-  <button class="projectorButton" @click="onClick">Open projection window</button>
+  <button class="btn btn-primary projectorButton mb-2" @click="onClick">Open projection window</button>
 </template>
 
 <style scoped>
