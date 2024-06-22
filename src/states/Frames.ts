@@ -1,5 +1,6 @@
 import { reactive } from "vue"
 import { useCookies } from "vue3-cookies";
+import { GREEN_FRAME_ANIMATION_DURATION } from "./Config";
 const { cookies } = useCookies();
 
 interface FrameMembers {
@@ -67,11 +68,15 @@ export class Frame implements FrameMembers {
 
   public toStyle() {
     return {
-      left: `${(this.left * 100).toFixed(0)}%`,
-      top: `${(this.top * 100).toFixed(0)}%`,
-      right: `${(this.right * 100).toFixed(0)}%`,
-      bottom: `${(this.bottom * 100).toFixed(0)}%`,
+      left: `${(this.left * 100).toFixed(2)}%`,
+      top: `${(this.top * 100).toFixed(2)}%`,
+      right: `${(this.right * 100).toFixed(2)}%`,
+      bottom: `${(this.bottom * 100).toFixed(2)}%`,
     }
+  }
+
+  public transactionLevel() {
+    return this.backup ? 1 : 0
   }
 
   public transaction() {
@@ -100,17 +105,27 @@ export class Frame implements FrameMembers {
 
 type Props = {
   frames: Frame[]
+  activeFrame: Frame
+  animationEndTime: number
   modifingFrame?: Frame
   getFrame: (name: string) => Frame | undefined
+  getDefaultFrame: () => Frame
   addFrame: (args: Omit<FrameMembers, "isSystem">) => void
   tryLoad: () => void
   save: () => void
+  setActiveFrame: (frame: Frame) => void
 }
 
+const fullFrame = new Frame({ isSystem: true, name: "full", left: 0, top: 0, right: 0, bottom: 0 })
 export const Frames = reactive<Props>({
-  frames: [new Frame({ isSystem: true, name: "Full", left: 0, top: 0, right: 0, bottom: 0 })],
+  frames: [fullFrame],
+  activeFrame: fullFrame,
+  animationEndTime: 0,
   getFrame(name) {
     return this.frames.find(frame => frame.name === name)
+  },
+  getDefaultFrame() {
+    return fullFrame
   },
   addFrame({ name, left, top, right, bottom }) {
     if (this.frames.some(frame => frame.name === name)) return
@@ -120,10 +135,14 @@ export const Frames = reactive<Props>({
   tryLoad() {
     const frames = cookies.get("frames")
     if (frames) {
-      this.frames = this.frames.concat(JSON.parse(frames).map((frame: SaveMembers) => new Frame({isSystem: false, ...frame})))
+      this.frames = this.frames.filter(frame => frame.isSystem).concat(JSON.parse(frames).map((frame: SaveMembers) => new Frame({isSystem: false, ...frame})))
     }
   },
   save() {
     cookies.set("frames", JSON.stringify(this.frames.filter(frame => ! frame.isSystem).map(frame => frame.toJSON())))
-  }
+  },
+  setActiveFrame(frame) {
+    this.animationEndTime = Date.now() + GREEN_FRAME_ANIMATION_DURATION;
+    this.activeFrame = frame
+  },
 })

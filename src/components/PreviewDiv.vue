@@ -8,6 +8,7 @@ import debounce from 'lodash.debounce';
 import { VideoElement } from '@/states/VideoElement';
 import { Camera } from '@/states/Camera';
 import type { ResizeCorner } from './ResizeHandles.vue';
+import PtzFrame from './PtzFrame.vue';
 
 const container = ref<HTMLDivElement>();
 
@@ -121,8 +122,9 @@ watch([() => Camera.streamMetadata?.width, () => Camera.streamMetadata?.height],
 <template>
   <div class="preview-wrapper p-1">
     <div class="preview-div" ref="container">
-      <CameraCanvas class="camera-canvas" frame-name="Full" :resolution="PreviewResolution.resolution" />
-      <FramePreview v-for="frame in Frames.frames" :key="frame.name" :frame="frame" @resizeFrame="onResizeFrame" />
+      <CameraCanvas class="camera-canvas" :frame="Frames.getDefaultFrame()" :resolution="PreviewResolution.resolution" />
+      <FramePreview v-for="frame in Frames.frames" :key="frame.name" :frame="frame" @resizeFrame="onResizeFrame" v-show="Frames.modifingFrame == null || Frames.modifingFrame === frame" />
+      <PtzFrame :preViewDiv="container" v-show="Frames.modifingFrame == null" />
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Frames } from '@/states/Frames';
+import { Frame, Frames } from '@/states/Frames';
 import { PreviewResolution } from '@/states/PreviewResolution';
 import { VideoElement } from '@/states/VideoElement';
 import debounce from 'lodash.debounce';
@@ -10,7 +10,7 @@ const canvas = ref<HTMLCanvasElement>();
 let context: CanvasRenderingContext2D;
 
 const props = withDefaults(defineProps<{
-  frameName: string,
+  frame: Frame,
   resolution: number
 }>(), {resolution: 640});
 
@@ -28,10 +28,7 @@ const draw = () => {
   if (canvas.value && VideoElement.element && VideoElement.element.srcObject) {
     const canvas1 = canvas.value;
     const videoElement = VideoElement.element;
-    const frame = Frames.getFrame(props.frameName);
-    if (!frame) {
-      return;
-    }
+    const frame = props.frame;
     context.drawImage(videoElement, videoElement.videoWidth * frame.left, videoElement.videoHeight * frame.top, videoElement.videoWidth * frame.width, videoElement.videoHeight * frame.height, 0, 0, canvas1.width, canvas1.height);
   } else if (canvas.value) {
     context.clearRect(0, 0, canvas.value.width, canvas.value.height);
@@ -41,11 +38,7 @@ const draw = () => {
 
 const handleResize = debounce(() => {
   if (canvas.value && VideoElement.element) {
-    const frame = Frames.getFrame(props.frameName);
-    if (!frame) {
-      console.log('no frame');
-      return;
-    }
+    const frame = props.frame;
     const frameWidth = VideoElement.element.videoWidth * frame.width;
     const frameHeight = VideoElement.element.videoHeight * frame.height;
     const scale = Math.min(props.resolution / frameWidth, props.resolution / frameHeight);
@@ -63,7 +56,7 @@ watch(() => canvas.value, (canvas) => {
   }
 });
 
-watch([() => Frames.getFrame(props.frameName)?.width, () => Frames.getFrame(props.frameName)?.height, () => Camera.streamMetadata?.width, () => Camera.streamMetadata?.height], () => {
+watch([() => props.frame.width, () => props.frame.height, () => Camera.streamMetadata?.width, () => Camera.streamMetadata?.height], () => {
   if (canvas.value && context) {
     context.clearRect(0, 0, canvas.value.width, canvas.value.height);
   }

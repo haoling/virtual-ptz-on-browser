@@ -4,9 +4,10 @@ import { computed, ref } from 'vue';
 import ResizeHandles, { type ResizeCorner } from './ResizeHandles.vue';
 import FrameName from './FrameName.vue';
 
-const props = defineProps<{
-  frame: Frame
-}>();
+const props = withDefaults(defineProps<{
+  frame: Frame,
+  isGreen?: boolean
+}>(), {isGreen: false});
 
 const emit = defineEmits({
   resizeFrame(payload: {frame: Frame, corner: ResizeCorner, dx: number, dy: number}) {
@@ -14,21 +15,20 @@ const emit = defineEmits({
   }
 })
 
-const frame = computed(() => props.frame);
 const frameDiv = ref<HTMLDivElement | null>(null);
-const frameRect = computed(() => {
-  if (!frame.value) {
-    return {
-      left: 0,
-      top: 0,
-      width: 0,
-      height: 0
-    };
+const modifiable = computed(() => Frames.modifingFrame === props.frame);
+const borderClasses = computed(() => {
+  const classes: string[] = ["frame"];
+  if (props.isGreen) {
+    classes.push('green-frame');
+  } else if (props.frame.isSystem) {
+    classes.push('gray-frame');
   }
-
-  return frame.value.toStyle();
+  if (modifiable.value) {
+    classes.push('modifiable-frame');
+  }
+  return classes;
 });
-const modifiable = computed(() => Frames.modifingFrame === frame.value);
 
 const onResizeFrame = (payload: {corner: ResizeCorner, dx: number, dy: number}) => {
   emit('resizeFrame', {frame: props.frame, ...payload});
@@ -36,7 +36,7 @@ const onResizeFrame = (payload: {corner: ResizeCorner, dx: number, dy: number}) 
 </script>
 
 <template>
-  <div class="frame" :class="{ 'gray-frame': frame?.isSystem, 'modifiable-frame': modifiable }" :style="frameRect" ref="frameDiv">
+  <div :class="borderClasses" :style="props.frame.toStyle()" ref="frameDiv">
     <FrameName v-if="! frame?.isSystem && ! modifiable" :frameName="props.frame.name"/>
     <ResizeHandles v-if="modifiable && frame" :frame="frame" @resizeFrame="onResizeFrame" />
   </div>
