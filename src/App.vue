@@ -8,6 +8,7 @@ import FrameList from './components/FrameList.vue';
 import { PreviewResolution } from './states/PreviewResolution';
 import CameraStream from './components/CameraStream.vue';
 import { onMounted } from 'vue';
+import { GreenFrame } from './states/GreenFrame';
 
 const DEBUG = false;
 
@@ -21,7 +22,7 @@ onMounted(() => {
     <div class="app-panel p-2">
       <CameraStream />
       <div><CameraSelect /></div>
-      <div><ProjectorButton /></div>
+      <div><ProjectorButton :frame="GreenFrame.frame" /></div>
       <div><FrameList /></div>
       <!-- debug-->
       <div v-if="DEBUG">

@@ -3,7 +3,7 @@ import { useCookies } from "vue3-cookies";
 import { GREEN_FRAME_ANIMATION_DURATION } from "./Config";
 const { cookies } = useCookies();
 
-interface FrameMembers {
+export interface FrameMembers {
   isSystem: boolean;
   name: string;
   left: number;
