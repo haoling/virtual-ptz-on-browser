@@ -46,7 +46,7 @@ watch([() => Camera.streamMetadata?.width, () => Camera.streamMetadata?.height],
 </script>
 
 <template>
-  <div class="preview-wrapper">
+  <div class="preview-wrapper p-1">
     <div class="preview-div" ref="container">
       <CameraCanvas class="camera-canvas" frame-name="Full" :resolution="PreviewResolution.resolution" />
       <FramePreview v-for="frame in Frames.frames" :key="frame.name" :frame-name="frame.name" />
@@ -65,6 +65,7 @@ watch([() => Camera.streamMetadata?.width, () => Camera.streamMetadata?.height],
 }
 .camera-canvas {
   position: relative;
+  display: flex;
 }
 .preview-div {
   position: relative;
