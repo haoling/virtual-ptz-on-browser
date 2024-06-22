@@ -7,17 +7,36 @@ import { Frames } from './states/Frames';
 </script>
 
 <template>
-  <div>
-    <CameraSelect />
-    <ProjectorButton />
-    <!-- <div v-for="(frame, index) in frames">
-      <frame-controller :frame="frame" :index="index"></frame-controller>
-    </div> -->
-    <!-- debug-->
-    <div style="display: none;">
-      {{ Camera.device?.deviceId }}
-      {{ Frames.frames.length }}
+  <div class="app-container">
+    <div class="app-panel p-2">
+      <div><CameraSelect /></div>
+      <div><ProjectorButton /></div>
+      <!-- <div v-for="(frame, index) in frames">
+        <frame-controller :frame="frame" :index="index"></frame-controller>
+      </div> -->
+      <!-- debug-->
+      <div style="display: none;">
+        {{ Camera.device?.deviceId }}
+        {{ Frames.frames.length }}
+      </div>
     </div>
+    <PreviewDiv class="preview-container" />
   </div>
-  <PreviewDiv />
 </template>
+
+<style scoped>
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.app-panel {
+  flex-basis: 25%;
+}
+
+.preview-container {
+  flex-grow: 3;
+  height: 100%;
+}
+</style>

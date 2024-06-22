@@ -15,8 +15,6 @@ import CameraStream from './CameraStream.vue';
 <style scoped>
 .preview-div {
   position: relative;
-  width: 800px;
-  height: 600px;
   border: 1px solid #333;
 }
 
