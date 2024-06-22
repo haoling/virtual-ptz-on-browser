@@ -6,6 +6,7 @@ import ProjectorButton from './components/ProjectorButton.vue';
 import { Frames } from './states/Frames';
 import FrameList from './components/FrameList.vue';
 import { PreviewResolution } from './states/PreviewResolution';
+import CameraStream from './components/CameraStream.vue';
 
 const DEBUG = false;
 </script>
@@ -13,6 +14,7 @@ const DEBUG = false;
 <template>
   <div class="app-container">
     <div class="app-panel p-2">
+      <CameraStream />
       <div><CameraSelect /></div>
       <div><ProjectorButton /></div>
       <div><FrameList /></div>

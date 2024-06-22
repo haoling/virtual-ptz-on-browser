@@ -4,8 +4,8 @@ import { PreviewResolution } from '@/states/PreviewResolution';
 import { VideoElement } from '@/states/VideoElement';
 import debounce from 'lodash.debounce';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { Camera } from '@/states/Camera';
 
-const container = ref<HTMLDivElement>();
 const canvas = ref<HTMLCanvasElement>();
 let context: CanvasRenderingContext2D;
 
@@ -32,7 +32,7 @@ const draw = () => {
     if (!frame) {
       return;
     }
-    context.drawImage(videoElement, frame.left, frame.top, frame.width, frame.height, 0, 0, canvas1.width, canvas1.height);
+    context.drawImage(videoElement, videoElement.videoWidth * frame.left, videoElement.videoHeight * frame.top, videoElement.videoWidth * frame.width, videoElement.videoHeight * frame.height, 0, 0, canvas1.width, canvas1.height);
   } else if (canvas.value) {
     context.clearRect(0, 0, canvas.value.width, canvas.value.height);
   }
@@ -40,31 +40,20 @@ const draw = () => {
 }
 
 const handleResize = debounce(() => {
-  if (canvas.value) {
+  if (canvas.value && VideoElement.element) {
     const frame = Frames.getFrame(props.frameName);
     if (!frame) {
+      console.log('no frame');
       return;
     }
-    const scale = Math.min(props.resolution / frame.width, props.resolution / frame.height);
-    canvas.value.width = frame.width * scale;
-    canvas.value.height = frame.height * scale;
-    
-    // set aspect-ratio css
-    const aspectRatio = frame.width / frame.height;
-    canvas.value.style.aspectRatio = aspectRatio.toFixed(2);
-
-    if (container.value) {
-      // fit canvas to container
-      canvas.value.style.width = '100%';
-      canvas.value.style.height = '100%';
-      if (aspectRatio > (container.value.clientWidth / container.value.clientHeight)) {
-        canvas.value.style.width = '100%';
-        canvas.value.style.height = 'auto';
-      } else {
-        canvas.value.style.width = 'auto';
-        canvas.value.style.height = '100%';
-      }
-    }
+    const frameWidth = VideoElement.element.videoWidth * frame.width;
+    const frameHeight = VideoElement.element.videoHeight * frame.height;
+    const scale = Math.min(props.resolution / frameWidth, props.resolution / frameHeight);
+    canvas.value.width = frameWidth * scale;
+    canvas.value.height = frameHeight * scale;
+  } else {
+    console.log('no video element');
+  
   }
 }, 100)
 
@@ -74,7 +63,7 @@ watch(() => canvas.value, (canvas) => {
   }
 });
 
-watch([() => Frames.getFrame(props.frameName)?.width, () => Frames.getFrame(props.frameName)?.height], () => {
+watch([() => Frames.getFrame(props.frameName)?.width, () => Frames.getFrame(props.frameName)?.height, () => Camera.streamMetadata?.width, () => Camera.streamMetadata?.height], () => {
   if (canvas.value && context) {
     context.clearRect(0, 0, canvas.value.width, canvas.value.height);
   }
@@ -85,21 +74,10 @@ watch(() => PreviewResolution.resolution, handleResize);
 </script>
 
 <template>
-  <div class="canvas-container" ref="container">
-    <canvas class="preview-canvas" ref="canvas" width="800" height="800"></canvas>
-  </div>
+  <canvas class="preview-canvas" ref="canvas" width="800" height="800"></canvas>
 </template>
 
 <style scoped>
-.canvas-container {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .preview-canvas {
   width: 100%;
   height: 100%;
