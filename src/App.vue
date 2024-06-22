@@ -4,6 +4,10 @@ import PreviewDiv from './components/PreviewDiv.vue';
 import { Camera } from './states/Camera';
 import ProjectorButton from './components/ProjectorButton.vue';
 import { Frames } from './states/Frames';
+import FrameList from './components/FrameList.vue';
+import { PreviewResolution } from './states/PreviewResolution';
+
+const DEBUG = false;
 </script>
 
 <template>
@@ -11,13 +15,12 @@ import { Frames } from './states/Frames';
     <div class="app-panel p-2">
       <div><CameraSelect /></div>
       <div><ProjectorButton /></div>
-      <!-- <div v-for="(frame, index) in frames">
-        <frame-controller :frame="frame" :index="index"></frame-controller>
-      </div> -->
+      <div><FrameList /></div>
       <!-- debug-->
-      <div style="display: none;">
+      <div v-if="DEBUG">
         <div>{{ Camera.device?.deviceId }}</div>
         <div>{{ Camera.device?.label }}</div>
+        <div>Preview res: <select v-model="PreviewResolution.resolution"><option>100</option><option>800</option><option>2000</option><option>4000</option></select></div>
         <div>Frames: {{ Frames.frames.length }}</div>
       </div>
     </div>

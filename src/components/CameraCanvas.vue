@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { Frames } from '@/states/Frames';
+import { PreviewResolution } from '@/states/PreviewResolution';
 import { VideoElement } from '@/states/VideoElement';
 import debounce from 'lodash.debounce';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
+const container = ref<HTMLDivElement>();
 const canvas = ref<HTMLCanvasElement>();
 let context: CanvasRenderingContext2D;
 
-const props = defineProps<{
-  frameIndex: number,
-}>();
+const props = withDefaults(defineProps<{
+  frameName: string,
+  resolution: number
+}>(), {resolution: 640});
 
 onMounted(() => {
   requestAnimationFrame(draw);
@@ -25,19 +28,45 @@ const draw = () => {
   if (canvas.value && VideoElement.element && VideoElement.element.srcObject) {
     const canvas1 = canvas.value;
     const videoElement = VideoElement.element;
-    const frame = Frames.frames[props.frameIndex];
-    // fit inner box with keep aspect ratio
-    const scale = Math.min(canvas1.width / frame.width, canvas1.height / frame.height);
-    const width = frame.width * scale;
-    const height = frame.height * scale;
-    const left = (canvas1.width - width) / 2;
-    const top = (canvas1.height - height) / 2;
-    context.drawImage(videoElement, frame.left, frame.top, frame.width, frame.height, left, top, width, height);
+    const frame = Frames.getFrame(props.frameName);
+    if (!frame) {
+      return;
+    }
+    context.drawImage(videoElement, frame.left, frame.top, frame.width, frame.height, 0, 0, canvas1.width, canvas1.height);
   } else if (canvas.value) {
     context.clearRect(0, 0, canvas.value.width, canvas.value.height);
   }
   requestAnimationFrame(draw);
 }
+
+const handleResize = debounce(() => {
+  if (canvas.value) {
+    const frame = Frames.getFrame(props.frameName);
+    if (!frame) {
+      return;
+    }
+    const scale = Math.min(props.resolution / frame.width, props.resolution / frame.height);
+    canvas.value.width = frame.width * scale;
+    canvas.value.height = frame.height * scale;
+    
+    // set aspect-ratio css
+    const aspectRatio = frame.width / frame.height;
+    canvas.value.style.aspectRatio = aspectRatio.toFixed(2);
+
+    if (container.value) {
+      // fit canvas to container
+      canvas.value.style.width = '100%';
+      canvas.value.style.height = '100%';
+      if (aspectRatio > (container.value.clientWidth / container.value.clientHeight)) {
+        canvas.value.style.width = '100%';
+        canvas.value.style.height = 'auto';
+      } else {
+        canvas.value.style.width = 'auto';
+        canvas.value.style.height = '100%';
+      }
+    }
+  }
+}, 100)
 
 watch(() => canvas.value, (canvas) => {
   if (canvas) {
@@ -45,22 +74,18 @@ watch(() => canvas.value, (canvas) => {
   }
 });
 
-watch([() => Frames.frames[props.frameIndex].width, () => Frames.frames[props.frameIndex].height], () => {
+watch([() => Frames.getFrame(props.frameName)?.width, () => Frames.getFrame(props.frameName)?.height], () => {
   if (canvas.value && context) {
     context.clearRect(0, 0, canvas.value.width, canvas.value.height);
   }
+  handleResize();
 });
 
-const handleResize = debounce(() => {
-  if (canvas.value) {
-    canvas.value.width = canvas.value.clientWidth;
-    canvas.value.height = canvas.value.clientHeight;
-  }
-}, 100)
+watch(() => PreviewResolution.resolution, handleResize);
 </script>
 
 <template>
-  <div class="canvas-container">
+  <div class="canvas-container" ref="container">
     <canvas class="preview-canvas" ref="canvas" width="800" height="800"></canvas>
   </div>
 </template>

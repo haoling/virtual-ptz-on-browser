@@ -26,6 +26,6 @@ export const Camera = reactive<Props>({
   },
   setStreamMetadata(metadata) {
     this.streamMetadata = metadata;
-    Frames.update(0, {left: 0, top: 0, width: metadata.width, height: metadata.height})
+    Frames.update({index: 0, left: 0, top: 0, width: metadata.width, height: metadata.height})
   }
 })
