@@ -7,6 +7,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import debounce from 'lodash.debounce';
 import { VideoElement } from '@/states/VideoElement';
 import { Camera } from '@/states/Camera';
+import type { ResizeCorner } from './ResizeHandles.vue';
 
 const container = ref<HTMLDivElement>();
 
@@ -42,7 +43,7 @@ const handleResize = debounce(() => {
   }
 }, 100)
 
-const onResizeFrame = (payload: {frame: Frame, corner: string, dx: number, dy: number}) => {
+const onResizeFrame = (payload: {frame: Frame, corner: ResizeCorner, dx: number, dy: number}) => {
   // console.log('onResizeFrame', payload);
 
   const frame = payload.frame;
@@ -68,10 +69,12 @@ const onResizeFrame = (payload: {frame: Frame, corner: string, dx: number, dy: n
 
   // X方向かY方向、移動量が大きい方に合わせて、VideElementのアスペクト比に合わせる
   const aspectRatio = VideoElement.element.videoWidth / VideoElement.element.videoHeight;
-  if (Math.abs(payload.dx) > Math.abs(payload.dy)) {
-    dy = dx / aspectRatio;
-  } else {
-    dx = dy * aspectRatio;
+  if (payload.corner != "center") {
+    if (Math.abs(payload.dx) > Math.abs(payload.dy)) {
+      dy = dx / aspectRatio;
+    } else {
+      dx = dy * aspectRatio;
+    }
   }
 
   // 移動距離を、containerの幅、高さに対する割合に変換
@@ -82,6 +85,7 @@ const onResizeFrame = (payload: {frame: Frame, corner: string, dx: number, dy: n
   let top = backup.top;
   let right = backup.right;
   let bottom = backup.bottom;
+  /*
   if (payload.corner == "top-left") {
     left += dx;
     top += dy;
@@ -91,7 +95,12 @@ const onResizeFrame = (payload: {frame: Frame, corner: string, dx: number, dy: n
   } else if (payload.corner == "bottom-left") {
     left += dx;
     bottom -= dy;
-  } else if (payload.corner == "bottom-right") {
+  } else*/ if (payload.corner == "bottom-right") {
+    right -= dx;
+    bottom -= dy;
+  } else if (payload.corner == "center") {
+    left += dx;
+    top += dy;
     right -= dx;
     bottom -= dy;
   }

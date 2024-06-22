@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { Frame, Frames, type FrameUpdatableProps } from '@/states/Frames';
-import { computed, ref, watch } from 'vue';
-import ResizeHandles from './ResizeHandles.vue';
+import { Frame, Frames } from '@/states/Frames';
+import { computed, ref } from 'vue';
+import ResizeHandles, { type ResizeCorner } from './ResizeHandles.vue';
 import FrameName from './FrameName.vue';
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   frame: Frame
-  modifiable?: boolean
-}>(), { modifiable: false });
+}>();
 
 const emit = defineEmits({
-  resizeFrame(payload: {frame: Frame, corner: string, dx: number, dy: number}) {
+  resizeFrame(payload: {frame: Frame, corner: ResizeCorner, dx: number, dy: number}) {
     return true;
   }
 })
@@ -29,16 +28,17 @@ const frameRect = computed(() => {
 
   return frame.value.toStyle();
 });
+const modifiable = computed(() => Frames.modifingFrame === frame.value);
 
-const onResizeFrame = (payload: {corner: string, dx: number, dy: number}) => {
+const onResizeFrame = (payload: {corner: ResizeCorner, dx: number, dy: number}) => {
   emit('resizeFrame', {frame: props.frame, ...payload});
 };
 </script>
 
 <template>
-  <div class="frame" :class="{ 'gray-frame': frame?.isSystem, 'modifiable-frame': props.modifiable }" :style="frameRect" ref="frameDiv">
-    <FrameName v-if="! frame?.isSystem && ! props.modifiable" :frameName="props.frame.name"/>
-    <ResizeHandles v-if="props.modifiable && frame" :frame="frame" @resizeFrame="onResizeFrame" />
+  <div class="frame" :class="{ 'gray-frame': frame?.isSystem, 'modifiable-frame': modifiable }" :style="frameRect" ref="frameDiv">
+    <FrameName v-if="! frame?.isSystem && ! modifiable" :frameName="props.frame.name"/>
+    <ResizeHandles v-if="modifiable && frame" :frame="frame" @resizeFrame="onResizeFrame" />
   </div>
 </template>
 
