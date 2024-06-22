@@ -3,9 +3,10 @@ import { PreviewResolution } from '@/states/PreviewResolution';
 import CameraCanvas from './CameraCanvas.vue';
 import FramePreview from './FramePreview.vue';
 import { Frames } from '@/states/Frames';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import debounce from 'lodash.debounce';
 import { VideoElement } from '@/states/VideoElement';
+import { Camera } from '@/states/Camera';
 
 const container = ref<HTMLDivElement>();
 
@@ -25,7 +26,6 @@ const handleResize = debounce(() => {
     
     // // set aspect-ratio css
     const aspectRatio = videoWidth / videoHeight;
-    container.value.style.aspectRatio = aspectRatio.toFixed(2);
 
     // fit canvas to container
     container.value.style.width = '100%';
@@ -41,12 +41,14 @@ const handleResize = debounce(() => {
     console.log('no video element');
   }
 }, 100)
+
+watch([() => Camera.streamMetadata?.width, () => Camera.streamMetadata?.height], handleResize);
 </script>
 
 <template>
   <div class="preview-wrapper">
     <div class="preview-div" ref="container">
-      <CameraCanvas frame-name="Full" :resolution="PreviewResolution.resolution" />
+      <CameraCanvas class="camera-canvas" frame-name="Full" :resolution="PreviewResolution.resolution" />
       <FramePreview v-for="frame in Frames.frames" :key="frame.name" :frame-name="frame.name" />
     </div>
   </div>
@@ -61,8 +63,10 @@ const handleResize = debounce(() => {
   height: 100%;
   overflow: hidden;
 }
+.camera-canvas {
+  position: relative;
+}
 .preview-div {
   position: relative;
-  border: 1px solid #333;
 }
 </style>
