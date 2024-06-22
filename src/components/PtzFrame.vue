@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import FramePreview from './FramePreview.vue';
 import { Frame, Frames, type FrameUpdatableProps } from '@/states/Frames';
 import { GREEN_FRAME_ANIMATION_DURATION } from '@/states/Config';
+import { GreenFrame } from '@/states/GreenFrame';
 
 const props = defineProps<{
   preViewDiv?: HTMLDivElement,
@@ -12,13 +13,11 @@ const targetFrame = computed(() => {
   return Frames.activeFrame
 });
 
-const greenFrame = ref(new Frame({...Frames.getDefaultFrame(), ...{name: "Camera"}}))
-
 const animate = () => {
   // 緑の枠を黄色い枠に合わせていく処理
   // 緑の枠の位置とサイズを黄色の枠に徐々に合わせる
   // 黄色い枠と緑の枠の位置が同じになっても、緑の枠は表示し続ける
-  const greenFrameBackup = greenFrame.value.getBackup();
+  const greenFrameBackup = GreenFrame.frame.getBackup();
   if (props.preViewDiv && greenFrameBackup) {
     let progress = 1 - (Frames.animationEndTime - Date.now()) / GREEN_FRAME_ANIMATION_DURATION;
     if (progress > 1) {
@@ -31,7 +30,7 @@ const animate = () => {
     const bottom = greenFrameBackup.bottom + (targetFrame.value.bottom - greenFrameBackup.bottom) * progress;
 
     // console.log(left, top, right, bottom)
-    greenFrame.value.update({left, top, right, bottom})
+    GreenFrame.frame.update({left, top, right, bottom})
     // console.log(greenFrame.toStyle())
   }
   requestAnimationFrame(animate);
@@ -42,12 +41,12 @@ onMounted(() => {
 });
 
 watch(() => Frames.activeFrame, () => {
-  greenFrame.value.transaction();
+  GreenFrame.frame.transaction();
 });
 </script>
 
 <template>
-  <FramePreview :frame="greenFrame" :isGreen="true" />
+  <FramePreview :frame="GreenFrame.frame" :isGreen="true" />
 </template>
 
 <style scoped>

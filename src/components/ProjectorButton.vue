@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { Camera } from '@/states/Camera';
+import { Frame } from '@/states/Frames';
 import { VideoElement } from '@/states/VideoElement';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
+
+const props = defineProps<{
+  frame: Frame,
+}>()
 
 const projectorWindow = ref<Window | null>(null);
 const canvas = ref<HTMLCanvasElement | null>(null);
@@ -32,8 +37,12 @@ const draw = () => {
   if (! context.value) {
     return;
   }
-  if (VideoElement.element) {
-    context.value.drawImage(VideoElement.element, 0, 0, VideoElement.element.videoWidth, VideoElement.element.videoHeight);
+  if (VideoElement.element && canvas.value) {
+    const sx = props.frame.left * VideoElement.element.videoWidth;
+    const sy = props.frame.top * VideoElement.element.videoHeight;
+    const sw = ((1 - props.frame.right) - props.frame.left) * VideoElement.element.videoWidth;
+    const sh = ((1 - props.frame.bottom) - props.frame.top) * VideoElement.element.videoHeight;
+    context.value.drawImage(VideoElement.element, sx, sy, sw, sh, 0, 0, canvas.value.width, canvas.value.height);
   }
   requestAnimationFrame(draw);
 }
