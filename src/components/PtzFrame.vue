@@ -4,6 +4,7 @@ import FramePreview from './FramePreview.vue';
 import { Frame, Frames, type FrameUpdatableProps } from '@/states/Frames';
 import { GREEN_FRAME_ANIMATION_DURATION } from '@/states/Config';
 import { GreenFrame } from '@/states/GreenFrame';
+import { easing } from 'ts-easing';
 
 const props = defineProps<{
   preViewDiv?: HTMLDivElement,
@@ -23,6 +24,7 @@ const animate = () => {
     if (progress > 1) {
       progress = 1;
     }
+    progress = easing.inOutQuad(progress)
 
     const left = greenFrameBackup.left + (targetFrame.value.left - greenFrameBackup.left) * progress;
     const top = greenFrameBackup.top + (targetFrame.value.top - greenFrameBackup.top) * progress;
