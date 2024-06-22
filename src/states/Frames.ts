@@ -20,6 +20,8 @@ export class Frame implements FrameMembers {
   right: number;
   bottom: number;
 
+  private backup?: Required<FrameUpdatableProps>;
+
   constructor({ isSystem, name, left, top, right, bottom }: FrameMembers) {
     this.isSystem = isSystem
     this.name = name
@@ -50,6 +52,28 @@ export class Frame implements FrameMembers {
       top: `${(this.top * 100).toFixed(0)}%`,
       right: `${(this.right * 100).toFixed(0)}%`,
       bottom: `${(this.bottom * 100).toFixed(0)}%`,
+    }
+  }
+
+  public transaction() {
+    this.backup = { left: this.left, top: this.top, right: this.right, bottom: this.bottom }
+  }
+
+  public getBackup() {
+    return this.backup
+  }
+
+  public commit() {
+    this.backup = undefined
+  }
+
+  public rollback() {
+    if (this.backup) {
+      this.left = this.backup.left
+      this.top = this.backup.top
+      this.right = this.backup.right
+      this.bottom = this.backup.bottom
+      this.backup = undefined
     }
   }
 }

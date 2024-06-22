@@ -2,7 +2,7 @@
 import { PreviewResolution } from '@/states/PreviewResolution';
 import CameraCanvas from './CameraCanvas.vue';
 import FramePreview from './FramePreview.vue';
-import { Frames, type FrameUpdatableProps } from '@/states/Frames';
+import { Frame, Frames, type FrameUpdatableProps } from '@/states/Frames';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import debounce from 'lodash.debounce';
 import { VideoElement } from '@/states/VideoElement';
@@ -42,10 +42,10 @@ const handleResize = debounce(() => {
   }
 }, 100)
 
-const onResizeFrame = (payload: {frameName: string} & FrameUpdatableProps) => {
+const onResizeFrame = (payload: {frame: Frame, corner: string, dx: number, dy: number}) => {
   // console.log('onResizeFrame', payload);
 
-  const frame = Frames.getFrame(payload.frameName);
+  const frame = payload.frame;
   if (!frame) {
     return;
   }
@@ -54,24 +54,54 @@ const onResizeFrame = (payload: {frameName: string} & FrameUpdatableProps) => {
     return;
   }
 
+  const backup = frame.getBackup();
+  if (! backup) {
+    return;
+  }
+
+  if (! VideoElement.element) {
+    return;
+  }
+
+  let dx = payload.dx;
+  let dy = payload.dy;
+
+  // X方向かY方向、移動量が大きい方に合わせて、VideElementのアスペクト比に合わせる
+  const aspectRatio = VideoElement.element.videoWidth / VideoElement.element.videoHeight;
+  if (Math.abs(payload.dx) > Math.abs(payload.dy)) {
+    dy = dx / aspectRatio;
+  } else {
+    dx = dy * aspectRatio;
+  }
+
   // 移動距離を、containerの幅、高さに対する割合に変換
-  const deltaLeft = payload.left ? payload.left / container.value.clientWidth : 0;
-  const deltaTop = payload.top ? payload.top / container.value.clientHeight : 0;
-  const deltaRight = payload.right ? payload.right / container.value.clientWidth : 0;
-  const deltaBottom = payload.bottom ? payload.bottom / container.value.clientHeight : 0;
+  dx = dx / container.value.clientWidth;
+  dy = dy / container.value.clientHeight;
 
-  // console.log('frame', frame.left, frame.top, frame.right, frame.bottom);
-  // console.log('delta', deltaLeft, deltaTop, deltaRight, deltaBottom);
+  let left = backup.left;
+  let top = backup.top;
+  let right = backup.right;
+  let bottom = backup.bottom;
+  if (payload.corner == "top-left") {
+    left += dx;
+    top += dy;
+  } else if (payload.corner == "top-right") {
+    right -= dx;
+    top += dy;
+  } else if (payload.corner == "bottom-left") {
+    left += dx;
+    bottom -= dy;
+  } else if (payload.corner == "bottom-right") {
+    right -= dx;
+    bottom -= dy;
+  }
 
-  let left = frame.left + deltaLeft;
-  let top = frame.top + deltaTop;
-  let right = frame.right - deltaRight;
-  let bottom = frame.bottom - deltaBottom;
+  console.log('frame', left, top, right, bottom);
 
-  if (left < 0 || 1 - left - right <= 0) left = frame.left;
-  if (top < 0 || 1 - top - bottom <= 0) top = frame.top;
-  if (right > 1 || 1 - left - right <= 0) right = frame.right;
-  if (bottom > 1 || 1 - top - bottom <= 0) bottom = frame.bottom;
+  if (left < 0 || 1 - left - right <= 0.05) return;
+  if (top < 0 || 1 - top - bottom <= 0.05) return;
+  if (right < 0 || 1 - left - right <= 0.05) return;
+  if (bottom< 0 || 1 - top - bottom <= 0.05) return;
 
   frame.update({left, top, right, bottom});
 };
@@ -83,7 +113,7 @@ watch([() => Camera.streamMetadata?.width, () => Camera.streamMetadata?.height],
   <div class="preview-wrapper p-1">
     <div class="preview-div" ref="container">
       <CameraCanvas class="camera-canvas" frame-name="Full" :resolution="PreviewResolution.resolution" />
-      <FramePreview v-for="frame in Frames.frames" :key="frame.name" :frame-name="frame.name" @resizeFrame="onResizeFrame" />
+      <FramePreview v-for="frame in Frames.frames" :key="frame.name" :frame="frame" @resizeFrame="onResizeFrame" />
     </div>
   </div>
 </template>

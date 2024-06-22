@@ -1,27 +1,21 @@
 <script setup lang="ts">
-import { Frames, type FrameUpdatableProps } from '@/states/Frames';
+import { Frame, Frames, type FrameUpdatableProps } from '@/states/Frames';
 import { computed, ref, watch } from 'vue';
 import ResizeHandles from './ResizeHandles.vue';
 import FrameName from './FrameName.vue';
 
 const props = withDefaults(defineProps<{
-  frameName: string
+  frame: Frame
   modifiable?: boolean
 }>(), { modifiable: false });
 
 const emit = defineEmits({
-  resizeFrame(payload: {frameName: string} & FrameUpdatableProps) {
-    if (Frames.getFrame(payload.frameName) === undefined) {
-      return false;
-    }
-    if (payload.left === undefined && payload.top === undefined && payload.right === undefined && payload.bottom === undefined) {
-      return false;
-    }
+  resizeFrame(payload: {frame: Frame, corner: string, dx: number, dy: number}) {
     return true;
   }
 })
 
-const frame = computed(() => Frames.getFrame(props.frameName));
+const frame = computed(() => props.frame);
 const frameDiv = ref<HTMLDivElement | null>(null);
 const frameRect = computed(() => {
   if (!frame.value) {
@@ -36,15 +30,15 @@ const frameRect = computed(() => {
   return frame.value.toStyle();
 });
 
-const onResizeFrame = (payload: FrameUpdatableProps) => {
-  emit('resizeFrame', {frameName: props.frameName, ...payload});
+const onResizeFrame = (payload: {corner: string, dx: number, dy: number}) => {
+  emit('resizeFrame', {frame: props.frame, ...payload});
 };
 </script>
 
 <template>
-  <div class="frame" :class="{ 'green-frame': frame?.isSystem, 'modifiable-frame': props.modifiable }" :style="frameRect" ref="frameDiv">
-    <FrameName v-if="! frame?.isSystem && ! props.modifiable" :frameName="frameName"/>
-    <ResizeHandles v-if="props.modifiable && frame" :frameName="frameName" @resizeFrame="onResizeFrame" />
+  <div class="frame" :class="{ 'gray-frame': frame?.isSystem, 'modifiable-frame': props.modifiable }" :style="frameRect" ref="frameDiv">
+    <FrameName v-if="! frame?.isSystem && ! props.modifiable" :frameName="props.frame.name"/>
+    <ResizeHandles v-if="props.modifiable && frame" :frame="frame" @resizeFrame="onResizeFrame" />
   </div>
 </template>
 
@@ -55,6 +49,11 @@ const onResizeFrame = (payload: FrameUpdatableProps) => {
   background-position: 0 0, 0 0, 100% 0, 0 100%;
   background-repeat: no-repeat;
   position: absolute;
+}
+
+.gray-frame {
+  background-image: repeating-linear-gradient(-60deg, gray, gray 1px, transparent 1px, transparent 2px, gray 2px), repeating-linear-gradient(30deg, gray, gray 1px, transparent 1px, transparent 2px, gray 2px), repeating-linear-gradient(120deg, gray, gray 1px, transparent 1px, transparent 2px, gray 2px), repeating-linear-gradient(210deg, gray, gray 1px, transparent 1px, transparent 2px, gray 2px);
+  border-color: gray;
 }
 
 .green-frame {
