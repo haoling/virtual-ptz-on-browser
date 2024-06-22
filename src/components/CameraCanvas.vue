@@ -15,11 +15,12 @@ onMounted(() => {
 });
 
 const draw = () => {
-  if (canvas.value && VideoElement.element) {
+  if (canvas.value && VideoElement.element && VideoElement.element.srcObject) {
     const canvas1 = canvas.value;
     const videoElement = VideoElement.element;
     const frame = Frames.frames[props.frameIndex];
-    context.drawImage(videoElement, frame.left, frame.top, frame.width, frame.height, 0, 0, canvas1.width, canvas1.height);
+  } else if (canvas.value) {
+    context.clearRect(0, 0, canvas.value.width, canvas.value.height);
   }
   requestAnimationFrame(draw);
 }

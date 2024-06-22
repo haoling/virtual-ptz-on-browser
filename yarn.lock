@@ -629,7 +629,14 @@ vue-tsc@^2.0.21:
     "@vue/language-core" "2.0.21"
     semver "^7.5.4"
 
-vue@^3.4.29:
+vue3-cookies@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/vue3-cookies/-/vue3-cookies-1.0.6.tgz#c1da41f1f3d6bbea8e75157d49d09dfc2a18ca8a"
+  integrity sha512-a1UvVD0qIgxyOqjlSOwnLnqAnz8ASltugEv8yX+96i/WGZAN9fEDci7xO4HIWZE1uToUnRq9JnFhvfDCSo45OA==
+  dependencies:
+    vue "^3.0.0"
+
+vue@^3.0.0, vue@^3.4.29:
   version "3.4.29"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.4.29.tgz#fad5a0fe6dfa5c4a2cfbbc48c489e7989616a15b"
   integrity sha512-8QUYfRcYzNlYuzKPfge1UWC6nF9ym0lx7mpGVPJYNhddxEf3DD0+kU07NTL0sXuiT2HuJuKr/iEO8WvXvT0RSQ==

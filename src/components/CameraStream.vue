@@ -30,6 +30,14 @@ watch(() => Camera.device, (camera) => {
       video.srcObject = stream;
       video.play();
     });
+  } else {
+    if (currentStream.value) {
+      currentStream.value.getTracks().forEach(track => track.stop());
+    }
+    currentStream.value = null;
+    if (videoElement.value) {
+      videoElement.value.srcObject = null;
+    }
   }
 });
 
