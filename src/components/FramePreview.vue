@@ -1,11 +1,25 @@
 <script setup lang="ts">
-import { Frames } from '@/states/Frames';
+import { Frames, type FrameUpdatableProps } from '@/states/Frames';
 import { computed, ref, watch } from 'vue';
+import ResizeHandles from './ResizeHandles.vue';
+import FrameName from './FrameName.vue';
 
 const props = withDefaults(defineProps<{
   frameName: string
-  modifiable: boolean
+  modifiable?: boolean
 }>(), { modifiable: false });
+
+const emit = defineEmits({
+  resizeFrame(payload: {frameName: string} & FrameUpdatableProps) {
+    if (Frames.getFrame(payload.frameName) === undefined) {
+      return false;
+    }
+    if (payload.left === undefined && payload.top === undefined && payload.right === undefined && payload.bottom === undefined) {
+      return false;
+    }
+    return true;
+  }
+})
 
 const frame = computed(() => Frames.getFrame(props.frameName));
 const frameDiv = ref<HTMLDivElement | null>(null);
@@ -19,18 +33,18 @@ const frameRect = computed(() => {
     };
   }
 
-  return {
-    left: `${(frame.value.left * 100).toFixed(0)}%`,
-    top: `${(frame.value.top * 100).toFixed(0)}%`,
-    right: `${((1 - frame.value.left - frame.value.width) * 100).toFixed(0)}%`,
-    bottom: `${((1 - frame.value.top - frame.value.height) * 100).toFixed(0)}%`
-  }
+  return frame.value.toStyle();
 });
+
+const onResizeFrame = (payload: FrameUpdatableProps) => {
+  emit('resizeFrame', {frameName: props.frameName, ...payload});
+};
 </script>
 
 <template>
   <div class="frame" :class="{ 'green-frame': frame?.isSystem, 'modifiable-frame': props.modifiable }" :style="frameRect" ref="frameDiv">
-    <div v-if="! frame?.isSystem" class="frame-name">{{ frame?.name }}</div>
+    <FrameName v-if="! frame?.isSystem && ! props.modifiable" :frameName="frameName"/>
+    <ResizeHandles v-if="props.modifiable && frame" :frameName="frameName" @resizeFrame="onResizeFrame" />
   </div>
 </template>
 
@@ -41,17 +55,6 @@ const frameRect = computed(() => {
   background-position: 0 0, 0 0, 100% 0, 0 100%;
   background-repeat: no-repeat;
   position: absolute;
-}
-
-.frame-name {
-  position: absolute;
-  top: 0;
-  left: 0;
-  color: #000000; /* 文字色 */
-  font-size: 1.2vh; /* 文字サイズ */
-  padding: 2px; /* 余白 */
-  background-color: #e1ff00; /* 背景色 */
-  border-radius: 4px; /* 角丸 */
 }
 
 .green-frame {

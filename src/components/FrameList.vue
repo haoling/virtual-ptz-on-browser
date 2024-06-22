@@ -3,12 +3,14 @@ import { Frames } from '@/states/Frames';
 import FrameController from './FrameController.vue';
 
 const addFrame = () => {
+    const left = Math.random() * 0.9;
+    const top = Math.random() * 0.9;
     Frames.addFrame({
         name: `Frame ${Frames.frames.length + 1}`,
-        left: Math.random() * 0.9,
-        top: Math.random() * 0.9,
-        width: 0.1,
-        height: 0.1
+        left: left,
+        top: top,
+        right: 1 - left - 0.1,
+        bottom: 1 - top - 0.1,
     });
 }
 </script>

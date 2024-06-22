@@ -9,5 +9,8 @@
 			"github.copilot",
 			"vue.volar"
 		]
+	},
+	"settings": {
+		"editor.tabSize": 2
 	}
 }

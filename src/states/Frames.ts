@@ -1,38 +1,72 @@
 import { reactive } from "vue"
 
-type UpdatableProps = {
-    left: number;
-    top: number;
-    width: number;
-    height: number;
+interface FrameMembers {
+  isSystem: boolean;
+  name: string;
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
 }
-export type Frame = UpdatableProps & {
-    isSystem: boolean;
-    name: string;
+
+// isSystemとnameはUpdate不可
+export type FrameUpdatableProps = Partial<Omit<FrameMembers, "isSystem" | "name">>
+
+export class Frame implements FrameMembers {
+  isSystem: boolean;
+  name: string;
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+
+  constructor({ isSystem, name, left, top, right, bottom }: FrameMembers) {
+    this.isSystem = isSystem
+    this.name = name
+    this.left = left
+    this.top = top
+    this.right = right
+    this.bottom = bottom
+  }
+
+  get width() {
+    return 1 - this.left - this.right
+  }
+
+  get height() {
+    return 1 - this.top - this.bottom
+  }
+
+  public update({ left, top, right, bottom }: FrameUpdatableProps) {
+    left !== undefined && (this.left = left)
+    top !== undefined && (this.top = top)
+    right !== undefined && (this.right = right)
+    bottom !== undefined && (this.bottom = bottom)
+  }
+
+  public toStyle() {
+    return {
+      left: `${(this.left * 100).toFixed(0)}%`,
+      top: `${(this.top * 100).toFixed(0)}%`,
+      right: `${(this.right * 100).toFixed(0)}%`,
+      bottom: `${(this.bottom * 100).toFixed(0)}%`,
+    }
+  }
 }
 
 type Props = {
-    frames: Frame[],
-    getFrame: (name: string) => Frame | undefined,
-    updateFrame: (args: {name: string} & UpdatableProps) => void,
-    addFrame: (args: {name: string} & UpdatableProps) => void,
+  frames: Frame[],
+  getFrame: (name: string) => Frame | undefined,
+  addFrame: (args: Omit<FrameMembers, "isSystem">) => void
 }
 
 export const Frames = reactive<Props>({
-    frames: [{isSystem: true, name: "Full", left: 0, top: 0, width: 1, height: 1}],
-    getFrame(name) {
-        return this.frames.find(frame => frame.name === name)
-    },
-    updateFrame({name, left, top, width, height}) {
-        const index = this.frames.findIndex(frame => frame.name === name)
-        if (index === -1) return
-        left !== undefined && (this.frames[index].left = left)
-        top !== undefined && (this.frames[index].top = top)
-        width !== undefined && (this.frames[index].width = width)
-        height !== undefined && (this.frames[index].height = height)
-    },
-    addFrame({name, left, top, width, height}) {
-        if (this.frames.some(frame => frame.name === name)) return
-        this.frames.push({isSystem: false, name, left, top, width, height})
-    }
+  frames: [new Frame({ isSystem: true, name: "Full", left: 0, top: 0, right: 0, bottom: 0 })],
+  getFrame(name) {
+    return this.frames.find(frame => frame.name === name)
+  },
+  addFrame({ name, left, top, right, bottom }) {
+    if (this.frames.some(frame => frame.name === name)) return
+    this.frames.push(new Frame({ isSystem: false, name, left, top, right, bottom }))
+  }
 })
