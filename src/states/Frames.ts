@@ -39,6 +39,10 @@ export class Frame implements FrameMembers {
     return 1 - this.top - this.bottom
   }
 
+  public rename(name: string) {
+    this.name = name
+  }
+
   public update({ left, top, right, bottom }: FrameUpdatableProps) {
     left !== undefined && (this.left = left)
     top !== undefined && (this.top = top)
@@ -80,6 +84,7 @@ export class Frame implements FrameMembers {
 
 type Props = {
   frames: Frame[],
+  modifingFrame?: Frame,
   getFrame: (name: string) => Frame | undefined,
   addFrame: (args: Omit<FrameMembers, "isSystem">) => void
 }
