@@ -32,7 +32,6 @@ const draw = () => {
     const height = frame.height * scale;
     const left = (canvas1.width - width) / 2;
     const top = (canvas1.height - height) / 2;
-    console.log('draw', left, top, width, height);
     context.drawImage(videoElement, frame.left, frame.top, frame.width, frame.height, left, top, width, height);
   } else if (canvas.value) {
     context.clearRect(0, 0, canvas.value.width, canvas.value.height);
@@ -43,6 +42,12 @@ const draw = () => {
 watch(() => canvas.value, (canvas) => {
   if (canvas) {
     context = canvas.getContext('2d')!;
+  }
+});
+
+watch([() => Frames.frames[props.frameIndex].width, () => Frames.frames[props.frameIndex].height], () => {
+  if (canvas.value && context) {
+    context.clearRect(0, 0, canvas.value.width, canvas.value.height);
   }
 });
 
