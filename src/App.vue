@@ -16,8 +16,9 @@ import { Frames } from './states/Frames';
       </div> -->
       <!-- debug-->
       <div style="display: none;">
-        {{ Camera.device?.deviceId }}
-        {{ Frames.frames.length }}
+        <div>{{ Camera.device?.deviceId }}</div>
+        <div>{{ Camera.device?.label }}</div>
+        <div>Frames: {{ Frames.frames.length }}</div>
       </div>
     </div>
     <PreviewDiv class="preview-container" />
