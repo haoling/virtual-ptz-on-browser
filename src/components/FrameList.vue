@@ -5,10 +5,10 @@ import FrameController from './FrameController.vue';
 const addFrame = () => {
     Frames.addFrame({
         name: `Frame ${Frames.frames.length + 1}`,
-        left: 0,
-        top: 0,
-        width: 100,
-        height: 100
+        left: Math.random() * 0.9,
+        top: Math.random() * 0.9,
+        width: 0.1,
+        height: 0.1
     });
 }
 </script>
