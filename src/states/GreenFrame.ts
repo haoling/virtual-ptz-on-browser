@@ -6,5 +6,5 @@ type Props = {
 }
 
 export const GreenFrame = reactive<Props>({
-    frame: new Frame({...Frames.getDefaultFrame(), ...{name: "Camera"}})
+    frame: new Frame({...Frames.getDefaultFrame(), ...{name: "PTZ"}})
 })

@@ -16,7 +16,7 @@ const addFrame = () => {
 </script>
 
 <template>
-    <div>
+    <div class="mt-2">
         <button class="btn btn-primary" @click="addFrame">+</button>
         <FrameController v-for="frame in Frames.frames" :key="frame.name" :frame="frame" />
     </div>

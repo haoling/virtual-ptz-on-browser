@@ -4,9 +4,11 @@ import { Frame } from '@/states/Frames';
 import { VideoElement } from '@/states/VideoElement';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
-const props = defineProps<{
-  frame: Frame,
-}>()
+const props = withDefaults(defineProps<{
+  frame: Frame
+  text?: string
+  btnClass?: string
+}>(), {text: "Open projection window", btnClass: "btn-primary"})
 
 const projectorWindow = ref<Window | null>(null);
 const canvas = ref<HTMLCanvasElement | null>(null);
@@ -21,7 +23,7 @@ const onClick = () => {
   if (! projectorWindow.value || ! VideoElement.element) {
     return;
   }
-  projectorWindow.value.document.write(`<title>Projection [${Camera.device?.label}]</title>`);
+  projectorWindow.value.document.write(`<title>Projection [${Camera.device?.label}] ${props.frame.name}</title>`);
   canvas.value = document.createElement('canvas');
   canvas.value.style.aspectRatio = (VideoElement.element.videoWidth / VideoElement.element.videoHeight).toString();
   context.value = canvas.value.getContext('2d');
@@ -72,11 +74,5 @@ watch(() => Camera.device, onBeforeUnmount);
 </script>
 
 <template>
-  <button class="btn btn-primary projectorButton mb-2" @click="onClick">Open projection window</button>
+  <button class="btn" :class="btnClass" @click="onClick">{{text}}</button>
 </template>
-
-<style scoped>
-.projectorButton {
-  margin-top: 10px;
-}
-</style>
