@@ -111,6 +111,7 @@ type Props = {
   getFrame: (name: string) => Frame | undefined
   getDefaultFrame: () => Frame
   addFrame: (args: Omit<FrameMembers, "isSystem">) => void
+  deleteFrame: (name: string) => void
   tryLoad: () => void
   save: () => void
   setActiveFrame: (frame: Frame) => void
@@ -130,6 +131,23 @@ export const Frames = reactive<Props>({
   addFrame({ name, left, top, right, bottom }) {
     if (this.frames.some(frame => frame.name === name)) return
     this.frames.push(new Frame({ isSystem: false, name, left, top, right, bottom }))
+    this.save()
+  },
+  deleteFrame(name) {
+    if (this.frames.length === 1) return
+    if (this.activeFrame.name === name) {
+      return;
+    }
+    if (! this.getFrame(name)) {
+      return;
+    }
+    if (this.getFrame(name)?.isSystem) {
+      return;
+    }
+    if (this.modifingFrame?.name === name) {
+      this.modifingFrame = undefined
+    }
+    this.frames = this.frames.filter(frame => frame.name !== name)
     this.save()
   },
   tryLoad() {

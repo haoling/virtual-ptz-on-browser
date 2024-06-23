@@ -2,21 +2,22 @@
 import { Camera } from '@/states/Camera';
 import { Frame } from '@/states/Frames';
 import { VideoElement } from '@/states/VideoElement';
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const props = withDefaults(defineProps<{
   frame: Frame
   text?: string
-  btnClass?: string
-}>(), {text: "Open projection window", btnClass: "btn-primary"})
+}>(), {text: "Open projection window"})
 
 const projectorWindow = ref<Window | null>(null);
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
+const btnClass = computed(() => projectorWindow.value ? 'btn-primary' : 'btn-outline-primary');
 
 const onClick = () => {
   if (projectorWindow.value) {
-    projectorWindow.value.close();
+    projectorWindow.value.focus();
+    return;
   }
 
   projectorWindow.value = window.open("", "", "width=640,height=480");
@@ -33,6 +34,11 @@ const onClick = () => {
   canvas.value.style.maxHeight = '100%';
   projectorWindow.value.document.write('<body style="margin: 0;">');
   projectorWindow.value.document.body.appendChild(canvas.value);
+
+  // projectorWindowを閉じたら、projectorWindowをnullにする
+  projectorWindow.value.addEventListener('beforeunload', () => {
+    projectorWindow.value = null;
+  });
 }
 
 const draw = () => {
