@@ -1,33 +1,20 @@
 # virtual-ptz-on-browser
 
-This template should help get you started developing with Vue 3 in Vite.
+Do you have PTZ cam? I don't.
+But I have 4K camera, I think "crop this video image, might can I virtual PTZ?".
 
-## Recommended IDE Setup
+This project brings you virtual PTZ system.
+![image](https://github.com/haoling/virtual-ptz-on-browser/assets/1535808/c54be489-b7fa-44f5-9a2c-b8d99c95b7ae)
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Prepare-1: Connect camera into your PC.
+Prepare-2: open [https://haoling.github.io/virtual-ptz-on-browser/](https://haoling.github.io/virtual-ptz-on-browser/)
 
-## Type Support for `.vue` Imports in TS
+First: You must select input camera. Over full hd resolution recommended.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+Second: You can add some frames.
 
-## Customize configuration
+Third: Click "Open projection window" button, open new window with full camera image.
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+Enjoy: Click "active" button in left side, projection window zooming to activated frame.
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
+![image](https://github.com/haoling/virtual-ptz-on-browser/assets/1535808/fd7e0ed0-afd6-4ea1-b592-4fd570536a38)
